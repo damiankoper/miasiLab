@@ -1,2 +1,3 @@
 docs/out/*.*
 !docs/out/*.pdf
+*.zip
