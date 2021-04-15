@@ -1,0 +1,6 @@
+{
+  "latex-workshop.latex.outDir": "../out",
+  "editor.wordWrap": "on",
+  "spellright.language": ["English (American)", "English (British)", "Polish"],
+  "spellright.documentTypes": ["markdown", "latex", "plaintext"]
+}
