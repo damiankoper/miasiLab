@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage{scrextend}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}%polskie znaki
+\usepackage[utf8]{inputenc}%polskie znaki
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\renewcommand{\baselinestretch}{1.5}
+
+
+\begin{document}
+
+\begin{flushleft}
+    Damian Koper \textbf{241292} \\
+\end{flushleft}
+\vspace{1cm}
+{
+    \centering
+    {\Huge\scshape\bfseries Modelowanie i analiza systemów informatycznych }\\
+    \large{Sieci Petriego - konstrukcja sieci Petriego z łukami czasowymi}\\
+    \vspace{0.5cm}
+}
+\newcounter{ex}
+\setcounter{ex}{0}
+\newcommand{\ex}[1]{
+    \refstepcounter{ex}{
+        \noindent\normalfont\Large\bfseries Zadanie \arabic{ex}.
+    } \\
+    #1
+}
+\clearpage
+\ex{Przekształcenie sieci - tramwaje}
+\vspace{-0.5cm}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{../../lab9/ex_1-timed}
+    \caption{Semafory naprzemienne. Nie można przełączyć automatycznie z $p_{11}$ na $p_{10}$ semafora prawego, kiedy w $p_{2}$ pojawi się tramwaj.}
+\end{figure}
+
+\clearpage
+
+\ex{Rozudowa sieci}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../../lab9/ex_2}
+    \caption{Sieć symulująca sygnalizację świetlną.}
+\end{figure}
+
+\end{document}
