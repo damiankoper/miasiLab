@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+int[0,9] n;</declaration>
+	<template>
+		<name x="5" y="5">Rand</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id0" x="-136" y="-59">
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="select" x="-136" y="-127">i:int[0,9]</label>
+			<label kind="assignment" x="-119" y="-110">n=i</label>
+			<nail x="-136" y="-93"/>
+			<nail x="-76" y="-93"/>
+			<nail x="-76" y="-8"/>
+			<nail x="-93" y="-17"/>
+			<nail x="-93" y="-76"/>
+			<nail x="-110" y="-76"/>
+			<nail x="-110" y="-17"/>
+			<nail x="-136" y="-17"/>
+			<nail x="-136" y="-34"/>
+			<nail x="-161" y="-34"/>
+			<nail x="-161" y="-8"/>
+			<nail x="-187" y="-8"/>
+			<nail x="-187" y="-42"/>
+			<nail x="-212" y="-42"/>
+			<nail x="-212" y="-17"/>
+			<nail x="-238" y="-17"/>
+			<nail x="-238" y="-51"/>
+			<nail x="-195" y="-51"/>
+			<nail x="-195" y="-76"/>
+			<nail x="-221" y="-76"/>
+			<nail x="-221" y="-102"/>
+			<nail x="-178" y="-102"/>
+			<nail x="-178" y="-59"/>
+			<nail x="-161" y="-59"/>
+			<nail x="-161" y="-136"/>
+			<nail x="-153" y="-136"/>
+			<nail x="-153" y="-93"/>
+			<nail x="-153" y="-76"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Process = Rand();
+// List one or more processes to be composed into a system.
+system Process;
+    </system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

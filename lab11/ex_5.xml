@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+chan card_inserted;
+chan pin_entered;
+chan validate_pin;
+chan pin_valid;
+chan pin_invalid;
+chan card_returned;
+chan enter_amount;
+chan validate_amount;
+int amount_bank = 100;
+int[1,150] amount;
+chan amount_entered;
+chan amount_valid;
+chan amount_invalid;
+chan withdraw;</declaration>
+	<template>
+		<name x="5" y="5">Client</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id0" x="-34" y="-68">
+			<name x="-44" y="-102">idle</name>
+		</location>
+		<location id="id1" x="102" y="-68">
+			<name x="68" y="-102">pin_await</name>
+		</location>
+		<location id="id2" x="238" y="-68">
+			<name x="196" y="-102">pin_validation</name>
+		</location>
+		<location id="id3" x="127" y="144">
+			<name x="136" y="110">amount_await</name>
+		</location>
+		<location id="id4" x="-34" y="144">
+			<name x="-110" y="110">amount_validation</name>
+		</location>
+		<location id="id5" x="-34" y="263">
+			<name x="-44" y="229">withdrawal</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="1" y="76">enter_amount?</label>
+			<nail x="-17" y="93"/>
+			<nail x="110" y="93"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-68" y="42">card_returned?</label>
+			<nail x="-76" y="85"/>
+			<nail x="-76" y="-25"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-110" y="297">card_returned?</label>
+			<nail x="17" y="263"/>
+			<nail x="17" y="289"/>
+			<nail x="-136" y="289"/>
+			<nail x="-136" y="-68"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-110" y="195">withdraw!</label>
+			<nail x="-119" y="144"/>
+			<nail x="-119" y="263"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="select" x="-17" y="153">i:int[1,150]</label>
+			<label kind="synchronisation" x="-17" y="170">amount_entered!</label>
+			<label kind="assignment" x="-17" y="187">amount=i</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="153" y="153">enter_amount?</label>
+			<nail x="238" y="144"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-16" y="0">card_returned?</label>
+			<nail x="238" y="17"/>
+			<nail x="-34" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="119" y="-51">pin_entered!</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-17" y="-51">card_inserted!</label>
+		</transition>
+	</template>
+	<template>
+		<name>ATM</name>
+		<location id="id6" x="-1606" y="-1402">
+			<name x="-1616" y="-1436">idle</name>
+		</location>
+		<location id="id7" x="-1470" y="-1402">
+			<name x="-1504" y="-1436">pin_await</name>
+		</location>
+		<location id="id8" x="-1292" y="-1402">
+			<name x="-1335" y="-1436">pin_validation</name>
+			<committed/>
+		</location>
+		<location id="id9" x="-1462" y="-1317">
+			<committed/>
+		</location>
+		<location id="id10" x="-1462" y="-1232">
+			<committed/>
+		</location>
+		<location id="id11" x="-1606" y="-1232">
+			<name x="-1616" y="-1266">amount_await</name>
+		</location>
+		<location id="id12" x="-1606" y="-1156">
+		</location>
+		<location id="id13" x="-1589" y="-985">
+			<name x="-1598" y="-1020">withdrawal</name>
+			<committed/>
+		</location>
+		<init ref="id6"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-1564" y="-977">withdraw?</label>
+			<nail x="-1411" y="-986"/>
+			<nail x="-1411" y="-1292"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-1725" y="-1011">amount_valid?</label>
+			<nail x="-1742" y="-1156"/>
+			<nail x="-1742" y="-986"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-1589" y="-1062">amount_invalid?</label>
+			<nail x="-1623" y="-1130"/>
+			<nail x="-1623" y="-1071"/>
+			<nail x="-1428" y="-1071"/>
+			<nail x="-1428" y="-1275"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-1588" y="-1105">amount_invalid?</label>
+			<nail x="-1606" y="-1088"/>
+			<nail x="-1462" y="-1088"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-1589" y="-1147">validate_amount!</label>
+			<nail x="-1513" y="-1156"/>
+			<nail x="-1513" y="-1190"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-1734" y="-1207">amount_entered?</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-1581" y="-1224">enter_amount!</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-1360" y="-1224">pin_valid?</label>
+			<nail x="-1292" y="-1232"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-1606" y="-1308">card_returned!</label>
+			<nail x="-1606" y="-1317"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-1377" y="-1309">pin_invalid?</label>
+			<nail x="-1292" y="-1317"/>
+			<nail x="-1428" y="-1317"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-1207" y="-1393">validate_pin!</label>
+			<nail x="-1224" y="-1402"/>
+			<nail x="-1224" y="-1359"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-1445" y="-1385">pin_entered?</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-1589" y="-1385">card_inserted?</label>
+		</transition>
+	</template>
+	<template>
+		<name>Bank</name>
+		<location id="id14" x="-170" y="-17">
+			<name x="-161" y="-59">idle</name>
+		</location>
+		<location id="id15" x="-51" y="-17">
+			<name x="-61" y="-51">pin_validation</name>
+			<committed/>
+		</location>
+		<location id="id16" x="-331" y="-17">
+			<committed/>
+		</location>
+		<init ref="id14"/>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-313" y="-178">amount_bank &lt; amount</label>
+			<label kind="synchronisation" x="-313" y="-161">amount_invalid!</label>
+			<nail x="-331" y="-144"/>
+			<nail x="-170" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-306" y="-127">amount_bank &gt;= amount</label>
+			<label kind="synchronisation" x="-306" y="-110">amount_valid!</label>
+			<label kind="assignment" x="-306" y="-93">amount_bank = amount_bank - amount</label>
+			<nail x="-331" y="-76"/>
+			<nail x="-170" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-306" y="-34">validate_amount?</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-152" y="42">pin_invalid!</label>
+			<nail x="-51" y="59"/>
+			<nail x="-170" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-152" y="0">pin_valid!</label>
+			<nail x="-51" y="17"/>
+			<nail x="-170" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-152" y="-34">validate_pin?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+ClientI = Client();
+BankI = Bank();
+ATMI = ATM();
+
+// List one or more processes to be composed into a system.
+system ClientI, BankI, ATMI;
+    </system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
