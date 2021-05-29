@@ -81,9 +81,9 @@ int[0,9] n;</declaration>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
-Process = Template();
+RandI = Rand();
 // List one or more processes to be composed into a system.
-system Process;
+system RandI;
     </system>
 	<queries>
 		<query>
