@@ -128,7 +128,7 @@ system  Client, Session, Server;</system>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>E&lt;&gt; forall(x:id_t) (Client(x).established and Client(x).time == t0)</formula>
+			<formula>A&lt;&gt; forall(x:id_t) (Client(x).established imply Client(x).time &gt;= t0)</formula>
 			<comment></comment>
 		</query>
 		<query>
