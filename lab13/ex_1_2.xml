@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int n = 2;
+typedef int[0,n-1] id_t;
+
+const int t0 = 1;
+const int t2 = 20;
+chan syn[n+1];
+broadcast chan syn_ack[n+1];
+chan close[n+1];</declaration>
+	<template>
+		<name x="5" y="5">Server</name>
+		<declaration>// Place local declarations here.
+id_t id;</declaration>
+		<location id="id0" x="0" y="0">
+			<name x="-8" y="-34">listening</name>
+		</location>
+		<location id="id1" x="195" y="0">
+			<committed/>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="93" y="93">syn_ack[id]!</label>
+			<nail x="195" y="110"/>
+			<nail x="0" y="110"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select" x="93" y="-17">e : id_t</label>
+			<label kind="synchronisation" x="93" y="0">syn[e]?</label>
+			<label kind="assignment" x="93" y="17">id = e</label>
+		</transition>
+	</template>
+	<template>
+		<name>Client</name>
+		<parameter>const int[0,n-1] id</parameter>
+		<declaration>int[t0,t2] t1 = 1;
+clock time;</declaration>
+		<location id="id2" x="-51" y="0">
+			<name x="-59" y="-34">closed</name>
+		</location>
+		<location id="id3" x="136" y="0">
+			<name x="119" y="-34">syn_sent</name>
+		</location>
+		<location id="id4" x="136" y="153">
+			<name x="144" y="119">established</name>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="guard" x="17" y="34">time &gt;= t1</label>
+			<label kind="synchronisation" x="17" y="51">close[id]!</label>
+			<nail x="102" y="93"/>
+			<nail x="102" y="34"/>
+			<nail x="-25" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-34" y="136">close[id]?</label>
+			<nail x="-51" y="153"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="select" x="144" y="25">i:int[t0,t2]</label>
+			<label kind="synchronisation" x="144" y="76">syn_ack[id]?</label>
+			<label kind="assignment" x="144" y="42">t1 = i,
+time = 0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="17" y="-17">syn[id]!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Session</name>
+		<parameter>const int[0,n-1] id</parameter>
+		<declaration>clock time;</declaration>
+		<location id="id5" x="-51" y="0">
+			<name x="-61" y="-34">closed</name>
+		</location>
+		<location id="id6" x="153" y="0">
+			<name x="170" y="-25">established</name>
+			<label kind="invariant" x="170" y="-8">time &lt;= t2</label>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="17" y="127">close[id]?</label>
+			<nail x="153" y="127"/>
+			<nail x="-51" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="17" y="42">time == t2</label>
+			<label kind="synchronisation" x="17" y="59">close[id]!</label>
+			<nail x="153" y="59"/>
+			<nail x="-51" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="17" y="-17">syn_ack[id]?</label>
+			<label kind="assignment" x="17" y="0">time = 0</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system  Client, Session, Server;</system>
+	<queries>
+		<query>
+			<formula>A[] forall(x:id_t) Client(x).established imply Client(x).time &lt;= t2</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(x:id_t) Client(x).established and Client(x).time == t2</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(x:id_t) (Client(x).established and Client(x).time == t0)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; exists(x:id_t) Session(x).established and Session(x).time &gt; t2</formula>
+			<comment>Should not be satisfied</comment>
+		</query>
+		<query>
+			<formula>A[] sum(x:id_t) Client(x).syn_sent &lt;= 1</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; (sum(x:id_t) Client(x).established) == n</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(x:id_t) Client(x).established</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Session(0).established --&gt; Session(0).closed</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] forall(x:id_t) (Client(x).established imply Session(x).established)</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
