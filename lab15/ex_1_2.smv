@@ -1,0 +1,156 @@
+MODULE main
+FROZENVAR
+    number : 0..8;
+VAR
+    e : {e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13};
+    j : 3..9;
+    i : 1..7;
+    jm : 1..7;
+    x : 0..6;
+    factorial : {1,2,6,24,120,720};
+    sigma : 0..5;
+    primes : 0..4;
+    c : 0..6;
+
+INIT
+    e = e1 &
+    j = 3 &
+    i = 1 &
+    jm = 1 &
+    x = 0 &
+    primes = 0 &
+    factorial = 1 &
+    sigma = 0 &
+    c = 0;
+
+TRANS next(jm) = j - 2;
+
+TRANS
+    next(e) in case
+        e=e1 & number > 2 : e2;
+        e=e1 & number <= 2 : e13;
+
+        e=e2 & j <= number : e3;
+        e=e2 & j > number : e9;
+
+        e=e3 : e4;
+
+        e=e4 : e5;
+
+        e=e5 & x < jm : e6;
+        e=e5 & x >= jm : e8;
+
+        e=e6 : e7;
+        e=e7 : e5;
+
+        e=e8 : e2;
+
+        e=e9 : e10;
+
+        e=e10 & number = 3 : e11;
+        e=e10 & number != 3 : e12;
+
+        TRUE : e;
+    esac;
+
+
+TRANS 
+    next(j) in case
+        e=e1 & next(e)=e2 : 3;
+        e=e8 & next(e)=e2 : j + 1;
+        TRUE : j;
+    esac;
+
+TRANS 
+    next(i) in case
+        e=e3 & next(e)=e4 : 1;
+        e=e6 & next(e)=e7 : i + 1;
+        TRUE : i;
+    esac;
+
+
+TRANS 
+    next(x) in case
+        e=e4 & next(e)=e5 : 0;
+        e=e7 & next(e)=e5 : x + 1;
+        TRUE : x;
+    esac;
+
+
+TRANS 
+    next(factorial) in case
+        e=e2 & next(e)=e3 : 1;
+        e=e5 & next(e)=e6 : factorial * i;
+        TRUE : factorial;
+    esac;
+
+TRANS 
+    next(x) in case
+        e=e4 & next(e)=e5 : 0;
+        e=e7 & next(e)=e5 : x + 1;
+        TRUE : x;
+    esac;
+
+TRANS 
+    next(sigma) in case
+        next(e)=e8 : sigma + (factorial - (j * (factorial / j)));
+        TRUE : sigma;
+    esac;
+
+TRANS 
+    next(primes) in case
+        next(e)=e9 : -1 + sigma;
+        TRUE : primes;
+    esac;
+    
+TRANS 
+    next(c) in case
+        next(e)=e3 : c + 1;
+        TRUE : c;
+    esac;
+
+DEFINE
+    begin := e=e1;
+    end := e=e11 | e=e12 | e=e13;
+
+
+CTLSPEC number in 0..2 -> AF(e = e13)
+-- jesli number in 0..2 to zawsze kiedyś e=e13
+-- true
+
+COMPUTE MAX [number in 3..8 & begin, number in 3..8 & end] -- 97
+COMPUTE MIN [number in 3..8 & begin, number in 3..8 & end] -- 12
+-- minimalna i maksymalna liczba stanów dla number in 3..8 od początku do końca
+
+CTLSPEC number = 3 -> !EBF 12..12 (end) -- false (wypisanie ścieżki)
+--  -> State: 1.13 <-
+--    e = e11
+--    end = TRUE
+--
+---- e11 -> cout << 2;
+
+CTLSPEC number = 8 -> !EBF 97..97 (end) -- false (wypisanie ścieżki)
+--  -> State: 2.96 <-
+--    e = e9
+--    jm = 7
+--    primes = 4
+--  -> State: 2.97 <-
+--    e = e10
+--  -> State: 2.98 <-
+--    e = e12
+--    end = TRUE
+--
+---- e12 -> cout << primes // 4;
+
+COMPUTE MIN [number = 6 & begin, number = 6 & end] -- 54
+-- minimalna liczba stanów dla number=6 od początku do końca
+CTLSPEC number = 6 -> !EBF 54..54 (end) -- false (wypisanie ścieżki)
+--  -> State: 3.36 <-
+--    c = 4
+
+CTLSPEC number = 6 -> AF(c=4)
+-- jeśli number=6 to zawsze kiedyś c=4
+-- true
+CTLSPEC number = 6 -> AG(c<=4)
+-- jeśli number=6 to zawsze c<=4
+-- true
