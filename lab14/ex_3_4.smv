@@ -1,0 +1,219 @@
+--################################### LIGHTS2
+
+MODULE lights2(lights3)
+VAR
+    state : {green, red};
+    awaitingLights3 : boolean;
+    t : 0..99;
+
+INIT 
+    state = red &
+    awaitingLights3 = FALSE &
+    t = 0;
+
+TRANS
+    next(t) in case 
+        next(state) != state : 0;
+        lights3.state != next(lights3.state): 0;
+        TRUE : (t+1) mod 99;
+    esac;
+
+TRANS next(awaitingLights3) in case
+        state = green & next(state) = red : TRUE;
+        lights3.state = red & next(lights3.state) = red_yellow : FALSE;
+        TRUE : awaitingLights3;
+    esac;
+
+TRANS
+    next(state) in case 
+        state = red & !awaitingLights3 & t = 1 & lights3.state = red : {green, red};
+        state = red & !awaitingLights3 & t = 2 & lights3.state = red : green;
+        state = green & t = 15 : red;
+        TRUE : state;
+    esac;
+
+CTLSPEC AG((state = green & AX(state = red)) -> t = 15)
+-- zawsze state=green trwa t = 15
+-- true
+
+CTLSPEC AG((state = red & AX(state = green)) -> lights3.state = red & t in 1..2)
+-- zmiana z state=red na state=green jeśli lights3.state=red w czasie t in 1..2
+-- true
+
+
+CTLSPEC EF(state = red & lights3.state = yellow & AX(lights3.state = red))
+CTLSPEC AG(state = red & lights3.state = yellow & AX(lights3.state = red) ->  t = 3)
+-- jest możliwe, że kiedyś state = red i lights3.state = yellow, a potem lights3.state = red
+-- zawsze jeżeli state = red i lights3.state = yellow, a potem lights3.state = red to t = 3
+-- lights3.state=yellow trwa t = 3 i t jest zsynchronizowane pomiędzy lights2 i lights3
+-- true
+
+
+CTLSPEC AG(state = green -> AX(state = green | state = red))
+CTLSPEC AG(state = red -> AX(state = red | state = green))
+-- zawsze jeżeli state to zawsze po nim state ten sam, albo poprawny
+-- true
+
+COMPUTE MIN[state = red, state = green] -- 1
+-- minimalny czas zmiany z state=red na state=green
+
+--################################### LIGHTS3
+
+MODULE lights3(button, lights2)
+VAR
+    state : {green, yellow, red, red_yellow};
+    awaitingLights2 : boolean;
+    t : 0..99;
+
+INIT 
+    state = green &
+    awaitingLights2 = FALSE &
+    t = 0;
+
+TRANS
+    next(t) in case 
+        next(state) != state : 0;
+        lights2.state != next(lights2.state): 0;
+        TRUE : (t+1) mod 99;
+    esac;
+
+TRANS next(awaitingLights2) in case
+        state = yellow & next(state) = red : TRUE;
+        lights2.state = red & next(lights2.state) = green : FALSE;
+        TRUE : awaitingLights2;
+    esac;
+
+TRANS
+    next(state) in case 
+        state = green & t >= 60 & button.pressed : yellow;
+        state = yellow & t = 3 : red;
+        state = red & !awaitingLights2 & lights2.state = red & t = 1 : {red, red_yellow};
+        state = red & !awaitingLights2 & lights2.state = red & t = 2 : {red_yellow};
+        state = red_yellow & t = 3 : green;
+        TRUE : state;
+    esac;
+
+CTLSPEC AG((state = green & AX(state = yellow)) -> t >= 60)
+CTLSPEC EF(state = green & AX(state = yellow) & t = 60)
+CTLSPEC !EF(state = green & AX(state = yellow) & t < 60)
+-- zawsze state=green trwa t >= 60
+-- możliwe jest, żeby state=green trwał t = 60
+-- niemożliwe jest, żeby state=green trwał t < 60
+-- true
+
+CTLSPEC AG((state = yellow & AX(state = red)) -> t = 3)
+CTLSPEC !EF(state = yellow & AX(state = red) & (t < 3 | t > 3))
+-- zawsze state=yellow trwa t >= 60
+-- niemożliwe jest, żeby state=yellow trwał t != 3
+-- true
+
+CTLSPEC AG((state = red_yellow & AX(state = green)) -> t = 3)
+CTLSPEC !EF(state = red_yellow & AX(state = green) & (t < 3 | t > 3))
+-- zawsze state=red_yellow trwa t >= 60
+-- niemożliwe jest, żeby state=red_yellow trwał t != 3
+-- true
+
+
+CTLSPEC EF((state = red & AX(state = red_yellow)))
+CTLSPEC AG((state = red & AX(state = red_yellow)) -> lights2.state = red & t in 1..2)
+-- zmiana z state=red na state=red_yellow jeśli lights2.state=red w czasie 1..2
+-- true
+
+COMPUTE MIN[state = red, state = red_yellow] -- 1
+-- minimalny czas zmiany z state=red na state=red_yellow
+
+CTLSPEC EF(state = red & lights2.state = green & AX(lights2.state = red))
+CTLSPEC AG(state = red & lights2.state = green & AX(lights2.state = red) ->  t = 15)
+-- zawsze jeżeli state = red i lights2.state = green, a potem lights2.state = red to t=15
+-- światło zielone dla pieszych trwa zawsze t = 15
+-- true
+
+CTLSPEC AG(state = green -> AX(state = green | state = yellow))
+CTLSPEC AG(state = yellow -> AX(state = yellow | state = red))
+CTLSPEC AG(state = red -> AX(state = red | state = red_yellow))
+CTLSPEC AG(state = red_yellow -> AX(state = red_yellow | state = green))
+-- zawsze jeżeli state to zawsze po nim state ten sam, albo poprawny
+-- true
+
+--################################### BUTTON
+
+MODULE button(lights2)
+VAR
+    pressed: boolean;
+    pressed_signal: boolean;
+    t : 0..5;
+    
+INIT 
+    pressed = FALSE &
+    pressed_signal = FALSE &
+    t = 0;
+    
+TRANS
+    next(t) in case 
+        !pressed_signal & next(pressed_signal) : 0;
+        TRUE : (t+1) mod 6;
+    esac;
+
+TRANS
+    next(pressed_signal) in case
+        next(pressed) : FALSE;
+        pressed_signal : TRUE;
+        TRUE :  {TRUE, FALSE};
+    esac;
+
+TRANS 
+    next(pressed) in case
+        pressed & !(lights2.state = green & next(lights2.state) = red) : TRUE;
+        pressed_signal & next(t) < 1 : FALSE;
+        pressed_signal & next(t) < 5 : {TRUE, FALSE};
+        pressed_signal & next(t) = 5 : TRUE;
+        TRUE: FALSE;
+    esac;
+
+COMPUTE MIN[pressed_signal, pressed] -- 1
+COMPUTE MAX[pressed_signal, pressed] -- 5
+-- min i max czas między naciśnięciem a obsługą
+
+CTLSPEC EF(pressed)
+CTLSPEC EF(pressed_signal)
+-- możliwe że kiedyś pressed i pressed_signal
+-- true
+
+CTLSPEC AG(pressed_signal -> ABF 1..5 (pressed))
+-- zawsze jeśli pressed_signal to zawsze w przeciągu 1..5 stanów pressed
+-- true
+
+CTLSPEC AG(!pressed -> AX(pressed -> t in 1..5))
+-- zawsze jesli !pressed to zawsze w następnym stanie, jeśli pressed, to czas jest pomiedzy 1..5
+-- true
+
+CTLSPEC AG(pressed_signal -> AX(pressed -> t in 1..5))
+-- zawsze jesli pressed_signal to zawsze w następnym stanie, jeśli pressed, to czas jest pomiedzy 1..5
+-- true
+
+CTLSPEC AG(pressed -> AX(AF !pressed))
+-- zawsze jesli pressed to kiedyś zawsze !pressed
+-- true
+
+--################################### MAIN
+
+MODULE main
+VAR
+    button: button(lights2);
+    lights2: lights2(lights3);
+    lights3: lights3(button, lights2);
+
+CTLSPEC AG(lights3.state = green -> lights2.state = red)
+INVARSPEC lights3.state = green -> lights2.state = red
+-- zawsze jeśli lights3.state=green to lights2.state=red
+-- true
+
+CTLSPEC AG(lights2.state = green -> lights3.state = red)
+INVARSPEC lights2.state = green -> lights3.state = red
+-- zawsze jeśli lights2.state=green to lights3.state=red
+-- true
+
+
+LTLSPEC button.pressed U lights2.state = red
+-- button.pressed dopóki lights2.state = red
+-- true

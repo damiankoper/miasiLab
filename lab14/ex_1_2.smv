@@ -26,32 +26,46 @@ TRANS next(state)
 
 CTLSPEC AG(state = 4 -> locked = FALSE)
 -- zawsze odblokoway w state=4
+-- true
 
 CTLSPEC AG(state < 4 -> locked = TRUE)
 -- zawsze zablokowany w state<4
+-- true
 
 CTLSPEC EF((n=1 & locked & EX(n=2 & locked & EX(n=3 & locked& EX(n=4 & !locked)))))
 -- możliwe, że kiedyś n=1 i zablokowany, w następym stanie n=2 i zablokowany,
 -- w następym stanie n=3 i zablokowany, w następym stanie n=4 i odblokowany
+-- true
 
 
 CTLSPEC AG(locked -> AX(n=1 -> state=1))
 -- jeśli zablokowany to n=1 resetuje do state=1
+-- true
 
 CTLSPEC AG(locked & state=1 -> AX(n=2 -> state=2))
 -- jeśli state=1 to n=2 przechodzi do state=2
+-- true
+
+CTLSPEC AG(locked & state=1 -> AX(n>=3 -> state=0))
+-- jeśli state=1 to n>=3 przechodzi do state=0
+-- true
 
 CTLSPEC AG(locked & state=2 -> AX(n=3 -> state=3))
 -- jeśli state=2 to n=3 przechodzi do state=3
+-- true
 
-CTLSPEC AG(locked & state=2 -> AX(n=2 | n=4 -> state=0))
--- jeśli state=2 to n!=3 resetuje do state=0
+CTLSPEC AG(locked & state=2 -> AX(n=2 | n>=4 -> state=0))
+-- jeśli state=2 to n=2|n>=4 resetuje do state=0
+-- true
 
 CTLSPEC AG(locked & state=3 -> AX(n=4 -> state=4))
 -- jeśli state=3 to n=4 przechodzi do state=4
+-- true
 
-CTLSPEC AG(locked & state=3 -> AX(n=2 | n=3 -> state=0))
--- jeśli state=3 to n!=4 resetuje do state=0
+CTLSPEC AG(locked & state=3 -> AX(n=2 | n=3 | n>=5 -> state=0))
+-- jeśli state=3 to n=2|n=3|n>=5 resetuje do state=0
+-- true
 
 CTLSPEC AG(state=4 -> AX(state=4))
 -- jeśli state=4 to n=? przechodzi do state=4
+-- true
